@@ -2,89 +2,145 @@ import streamlit as st
 import pandas as pd
 import datetime
 
-st.set_page_config(page_title="Student Productivity Tracker", layout="wide")
+st.set_page_config(page_title="RTU Student Productivity Tracker", layout="wide")
 
-# Sidebar Navigation
+# ---------------- HEADER ----------------
+st.title("🎓 RTU Student Productivity Tracker")
+st.caption("Rizal Technological University - Productivity Monitoring App")
+
+# Sidebar
+st.sidebar.image("https://upload.wikimedia.org/wikipedia/en/4/4a/Rizal_Technological_University_logo.png", width=120)
 st.sidebar.title("Navigation")
-page = st.sidebar.radio("Go to", ["Home", "Study Tracker", "Goals", "Feedback", "About"])
+
+page = st.sidebar.radio("Go to", ["Home", "Study Tracker", "Study Dashboard", "Goals", "Feedback", "About"])
+
+# Sample data storage
+if "study_data" not in st.session_state:
+    st.session_state.study_data = []
 
 # ---------------- HOME ----------------
 if page == "Home":
 
-    st.title("📚 Student Productivity Tracker")
+    st.header("Welcome Students 👋")
 
-    st.header("Welcome")
-    st.write("This app helps students track their study habits and productivity.")
+    col1, col2 = st.columns(2)
 
-    st.subheader("Daily Motivation")
-    st.info("Small progress every day leads to big success.")
+    with col1:
+        st.subheader("About the App")
+        st.write("""
+        This application helps *RTU students* track their study time,
+        productivity, and learning habits.
+        """)
 
-    st.success("Tip: Study consistently!")
+        st.info("📌 Tip: Consistent study habits improve long-term learning.")
+
+    with col2:
+        st.subheader("Motivation")
+        st.success("“Small progress each day adds up to big results.”")
+
+        st.metric("Weekly Study Target", "20 Hours")
+
+        st.progress(70)
+
+    st.divider()
+
+    st.subheader("Quick Reminders")
 
     st.warning("Avoid procrastination.")
-
     st.error("Do not overload yourself with tasks.")
-
-    st.markdown("---")
-
-    st.metric("Study Streak", "5 Days")
-
-    progress = st.progress(60)
-
-    st.image("https://images.unsplash.com/photo-1523240795612-9a054b0db644", caption="Stay Focused!")
+    st.success("Stay consistent with your study routine!")
 
 # ---------------- STUDY TRACKER ----------------
 elif page == "Study Tracker":
 
-    st.title("📝 Study Tracker")
+    st.header("📝 Log Study Session")
 
-    name = st.text_input("Enter your name")
+    col1, col2 = st.columns(2)
 
-    subject = st.selectbox(
-        "Select Subject",
-        ["Math", "Science", "Programming", "History", "English"]
-    )
+    with col1:
+        name = st.text_input("Student Name")
 
-    study_date = st.date_input("Study Date", datetime.date.today())
+        subject = st.selectbox(
+            "Subject",
+            ["Programming", "Mathematics", "Database", "Networking", "English"]
+        )
 
-    study_time = st.slider("Study Hours", 0, 10)
+        study_date = st.date_input("Study Date", datetime.date.today())
 
-    difficulty = st.radio(
-        "Difficulty Level",
-        ["Easy", "Medium", "Hard"]
-    )
+        study_time = st.slider("Study Hours", 0, 10)
 
-    topics = st.multiselect(
-        "Topics Covered",
-        ["Lecture", "Homework", "Reading", "Practice Problems"]
-    )
+    with col2:
+        difficulty = st.radio(
+            "Difficulty Level",
+            ["Easy", "Medium", "Hard"]
+        )
+
+        topics = st.multiselect(
+            "Topics Covered",
+            ["Lecture", "Assignment", "Reading", "Practice Coding"]
+        )
+
+        mood = st.select_slider(
+            "Mood While Studying",
+            options=["😞", "😐", "🙂", "😄"]
+        )
+
+        focus = st.checkbox("I studied with full focus")
 
     notes = st.text_area("Study Notes")
 
-    focus = st.checkbox("I studied with full focus")
+    if st.button("Save Study Log"):
 
-    mood = st.select_slider(
-        "Mood While Studying",
-        options=["😞", "😐", "🙂", "😄"]
-    )
+        new_data = {
+            "Name": name,
+            "Subject": subject,
+            "Date": study_date,
+            "Hours": study_time,
+            "Difficulty": difficulty
+        }
 
-    if st.button("Submit Study Log"):
-        st.success("Study log saved!")
+        st.session_state.study_data.append(new_data)
+
+        st.success("Study session saved!")
+
+# ---------------- STUDY DASHBOARD ----------------
+elif page == "Study Dashboard":
+
+    st.header("📊 Study Dashboard")
+
+    if len(st.session_state.study_data) == 0:
+
+        st.info("No study data yet. Add a study log first.")
+
+    else:
+
+        df = pd.DataFrame(st.session_state.study_data)
+
+        st.subheader("Study Records")
+        st.dataframe(df)
+
+        st.subheader("Study Hours Chart")
+        st.bar_chart(df["Hours"])
+
+        st.subheader("Subjects Distribution")
+        st.write(df["Subject"].value_counts())
 
 # ---------------- GOALS ----------------
 elif page == "Goals":
 
-    st.title("🎯 Study Goals")
+    st.header("🎯 Study Goals")
 
-    goal = st.text_input("Enter your weekly study goal")
+    goal = st.text_input("Weekly Study Goal")
 
-    hours_goal = st.number_input("Target Study Hours", min_value=1, max_value=100)
+    hours_goal = st.number_input(
+        "Target Study Hours",
+        min_value=1,
+        max_value=100
+    )
 
     deadline = st.date_input("Goal Deadline")
 
-    st.write("Goal Progress")
-
-    progress_goal = st.slider("Progress (%)", 0, 100)
+    progress_goal = st.slider("Goal Progress (%)", 0, 100)
 
     st.progress(progress_goal)
 
@@ -94,9 +150,9 @@ elif page == "Goals":
 # ---------------- FEEDBACK ----------------
 elif page == "Feedback":
 
-    st.title("💬 Feedback Form")
+    st.header("💬 Feedback Form")
 
-    rating = st.slider("Rate this app", 1, 10)
+    rating = st.slider("Rate this App", 1, 10)
 
     recommend = st.radio(
         "Would you recommend this app?",
@@ -113,34 +169,36 @@ elif page == "Feedback":
 # ---------------- ABOUT ----------------
 elif page == "About":
 
-    st.title("ℹ️ About This App")
+    st.header("ℹ️ About This Project")
 
-    st.subheader("What the App Does")
+    st.subheader("Project Information")
+
     st.write("""
-    The Student Productivity Tracker helps students record their study sessions,
-    track study goals, and monitor productivity.
+    *Application Name:* RTU Student Productivity Tracker  
+    *Course:* Streamlit UI Development  
+    *Purpose:* The RTU Student Productivity Tracker is designed to help students bridge the gap between "being busy" and 
+    "being productive. By logging focused study sessions, students can identify patterns in their learning habits and 
+    stay committed to their academic goals.
     """)
-
+    
     st.subheader("Target Users")
+
     st.write("""
-    - College students  
-    - High school students  
-    - Anyone who wants to improve study habits
+    RTU students who want to improve their study habits and productivity.
+    """)
+    st.subheader("Main Features")
+
+    st.write("""
+    - Study session tracking  
+    - Goal monitoring  
+    - Productivity dashboard  
+    - Feedback collection  
     """)
 
-    st.subheader("Inputs Collected")
+    st.subheader("Developed By")
+
     st.write("""
-    - Student name
-    - Study subject
-    - Study hours
-    - Topics covered
-    - Study notes
-    - Mood and focus level
+    August Adtoon
     """)
 
-    st.subheader("Outputs")
-    st.write("""
-    - Study logs
-    - Progress tracking
-    - Productivity insights
-    """)    
+    
