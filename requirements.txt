@@ -1,3 +1,5 @@
+streamlit
+pandas
 altair==6.0.0
 anaconda-anon-usage @ file:///opt/miniconda3/conda-bld/anaconda-anon-usage_1764636648062/work
 anaconda-auth @ file:///home/task_177249124085225/croot/anaconda-cloud-auth-split_1772491269211/work
